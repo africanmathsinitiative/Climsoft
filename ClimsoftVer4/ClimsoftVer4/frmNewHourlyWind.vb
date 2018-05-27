@@ -9,9 +9,6 @@
     End Sub
 
     Private Sub InitaliseDialog()
-        'TODO 
-        'If by default the selector is to be sorted by name
-        'then this can be removed
         ucrStationSelector.SortByStationName()
 
         ucrDay.setYearAndMonthLink(ucrYearSelector, ucrMonth)
@@ -21,34 +18,11 @@
         ucrHourlyWind.SetDirectionValidation(112)
         ucrHourlyWind.SetSpeedValidation(111)
 
-        AssignLinkToKeyField(ucrHourlyWind)
+        ucrHourlyWind.SetKeyControls(ucrStationSelector, ucrYearSelector, ucrMonth, ucrDay, ucrNavigation)
 
-        'TO CORRECTLY SORT THE RECORDS IN THE NAVIGATION IN SEQUENCE OF
-        'OF HOW THEY WERE SAVED THE entryDatetime NEEDS
-        'TO BE INCLUDED. CURRENTLY ITS NOT IN OUR MODEL
-
-        'ucrNavigation.SetTableNameAndFields("form_hourlywind", (New List(Of String)({"stationId", "yyyy", "mm", "dd", "entryDatetime"})))
-        ucrNavigation.SetTableNameAndFields("form_hourlywind", (New List(Of String)({"stationId", "yyyy", "mm", "dd"})))
-        ucrNavigation.SetKeyControls("stationId", ucrStationSelector)
-        ucrNavigation.SetKeyControls("yyyy", ucrYearSelector)
-        ucrNavigation.SetKeyControls("mm", ucrMonth)
-        ucrNavigation.SetKeyControls("dd", ucrDay)
-
-
-        'THIS WILL WORK ONCE WE INCLUDE THE entryDatetime AS A FIELD FOR ucrNavigation
-        'ucrNavigation.SetSortBy("entryDatetime")
-        ucrHourlyWind.SetLinkedNavigation(ucrNavigation)
         ucrNavigation.PopulateControl()
 
         SaveEnable()
-
-    End Sub
-
-    Private Sub AssignLinkToKeyField(ucrControl As ucrBaseDataLink)
-        ucrControl.AddLinkedControlFilters(ucrStationSelector, "stationId", "==", strLinkedFieldName:="stationId", bForceValuesAsString:=True)
-        ucrControl.AddLinkedControlFilters(ucrYearSelector, "yyyy", "==", strLinkedFieldName:="Year", bForceValuesAsString:=False)
-        ucrControl.AddLinkedControlFilters(ucrMonth, "mm", "==", strLinkedFieldName:="MonthId", bForceValuesAsString:=False)
-        ucrControl.AddLinkedControlFilters(ucrDay, "dd", "==", strLinkedFieldName:="day", bForceValuesAsString:=False)
     End Sub
 
     Private Sub btnHourSelection_Click(sender As Object, e As EventArgs) Handles btnHourSelection.Click
@@ -82,7 +56,7 @@
         dctSequencerFields.Add("mm", New List(Of String)({"mm"}))
         dctSequencerFields.Add("dd", New List(Of String)({"dd"}))
 
-        ucrNavigation.NewSequencerRecord(strSequencer:=txtSequencer.Text, dctFields:=dctSequencerFields, lstDateIncrementControls:=New List(Of ucrDataLinkCombobox)({ucrMonth}), ucrYear:=ucrYearSelector)
+        ucrNavigation.NewSequencerRecord(strSequencer:=txtSequencer.Text, dctFields:=dctSequencerFields, lstDateIncrementControls:=New List(Of ucrDataLinkCombobox)({ucrMonth, ucrDay}), ucrYear:=ucrYearSelector)
 
         ucrHourlyWind.ucrDirectionSpeedFlag0.Focus()
     End Sub
@@ -162,13 +136,13 @@
         'COULD BE REMOVED IF ITS NOT NECESSARY
         'Check if header information is complete. If the header information is complete and there is at least on obs value then,
         'carry out the next actions, otherwise bring up message showing that there is insufficient data
-        If (Not ucrHourlyWind.IsDirectionValuesEmpty) AndAlso Strings.Len(ucrStationSelector.GetValue) > 0 AndAlso Strings.Len(ucrYearSelector.GetValue) > 0 AndAlso Strings.Len(ucrMonth.GetValue) AndAlso Strings.Len(ucrDay.GetValue) > 0 Then
-            ucrNavigation.ResetControls()
-            ucrNavigation.MoveFirst()
-            SaveEnable()
-        Else
-            MessageBox.Show("Incomplete header information and insufficient observation data!", "Clear Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        End If
+        'If (Not ucrHourlyWind.IsDirectionValuesEmpty) AndAlso Strings.Len(ucrStationSelector.GetValue) > 0 AndAlso Strings.Len(ucrYearSelector.GetValue) > 0 AndAlso Strings.Len(ucrMonth.GetValue) AndAlso Strings.Len(ucrDay.GetValue) > 0 Then
+        ucrNavigation.ResetControls()
+        ucrNavigation.MoveFirst()
+        SaveEnable()
+        'Else
+        'MessageBox.Show("Incomplete header information and insufficient observation data!", "Clear Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        'End If
     End Sub
 
     'This is from Samuel's code
