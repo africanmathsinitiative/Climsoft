@@ -249,7 +249,7 @@ Public Class ucrValueFlagPeriod
 
     End Sub
 
-    Private Sub ucrValue_evtValueChanged(sender As Object, e As EventArgs) Handles ucrValue.evtValueChanged
+    Private Sub ucrValue_Leave(sender As Object, e As EventArgs) Handles ucrValue.Leave
         DoQCForValue()
         'Remove the missing value flag for non empty
         If Not ucrValue.IsEmpty AndAlso ucrFlag.GetValue = "M" Then
