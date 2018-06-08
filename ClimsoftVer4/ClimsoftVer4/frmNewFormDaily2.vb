@@ -11,67 +11,31 @@ Public Class frmNewFormDaily2
     End Sub
 
     Private Sub InitaliseDialog()
+        ucrFormDaily.SetKeyControls(ucrNewYear:=ucrYearSelector, ucrNewMonth:=ucrMonth, ucrNewHour:=ucrHour, ucrNewStation:=ucrStationSelector, ucrNewElement:=ucrElementSelector, ucrNewNavigation:=ucrDaiy2Navigation, ucrNewVisibilityUnits:=ucrVisibilityUnits, ucrNewCloudheightUnits:=ucrCloudheightUnits, ucrNewPrecipUnits:=ucrPrecipUnits, ucrNewTempUnits:=ucrTempUnits)
         ' Currently only works with this sequencer table so textbox disabled
         txtSequencer.Text = "seq_daily_element"
         txtSequencer.Enabled = False
         chkEnableSequencer.Checked = True
 
         'Sets the linked year and month controls to enable appropraite field for different months
-        ucrFormDaily.SetYearAndMonthLink(ucrYearSelector, ucrMonth)
-        AssignLinkToKeyField(ucrFormDaily)
+        ' ucrFormDaily.SetYearAndMonthLink(ucrYearSelector, ucrMonth)
 
-        'Sets table name and data table field for Visibility
-        ucrVisibilityUnits.SetTableNameAndField("form_daily2", "visUnits")
         'Sets values for the units combobox
         ucrVisibilityUnits.SetPossibleValues("visUnits", GetType(String), {"metres", "yards"})
-        AssignLinkToKeyField(ucrVisibilityUnits)
-        ucrVisibilityUnits.PopulateControl()
-        ucrVisibilityUnits.SetViewType("visUnits")
+        ucrVisibilityUnits.SetDisplayAndValueMember("visUnits")
 
-
-        ucrCloudheightUnits.SetTableNameAndField("form_daily2", "cloudHeightUnits")
         ucrCloudheightUnits.SetPossibleValues("cloudHeightUnits", GetType(String), {"metres", "feet"})
-        AssignLinkToKeyField(ucrCloudheightUnits)
-        ucrCloudheightUnits.PopulateControl()
-        ucrCloudheightUnits.SetViewType("cloudHeightUnits")
+        ucrCloudheightUnits.SetDisplayAndValueMember("cloudHeightUnits")
 
-        ucrPrecipUnits.SetTableNameAndField("form_daily2", "precipUnits")
         ucrPrecipUnits.SetPossibleValues("precipUnits", GetType(String), {"mm", "inches"})
-        AssignLinkToKeyField(ucrPrecipUnits)
-        ucrPrecipUnits.PopulateControl()
-        ucrPrecipUnits.SetViewType("precipUnits")
+        ucrPrecipUnits.SetDisplayAndValueMember("precipUnits")
 
-        ucrTempUnits.SetTableNameAndField("form_daily2", "temperatureUnits")
         ucrTempUnits.SetPossibleValues("temperatureUnits", GetType(String), {"Deg C", "Deg F"})
-        AssignLinkToKeyField(ucrTempUnits)
-        ucrTempUnits.PopulateControl()
-        ucrTempUnits.SetViewType("temperatureUnits")
+        ucrTempUnits.SetDisplayAndValueMember("temperatureUnits")
 
-        ucrDaiy2Navigation.SetTableNameAndFields("form_daily2", (New List(Of String)({"stationId", "elementId", "yyyy", "mm", "hh"})))
-
-        'Sets key controls for the navigation
-        ucrDaiy2Navigation.SetKeyControls("stationId", ucrStationSelector)
-        ucrDaiy2Navigation.SetKeyControls("elementId", ucrElementSelector)
-        ucrDaiy2Navigation.SetKeyControls("yyyy", ucrYearSelector)
-        ucrDaiy2Navigation.SetKeyControls("mm", ucrMonth)
-        ucrDaiy2Navigation.SetKeyControls("hh", ucrHour)
-
-        'Sets the linked Navigation control on the form
-        ucrFormDaily.SetLinkedNavigation(ucrDaiy2Navigation)
         ucrDaiy2Navigation.PopulateControl()
         SaveEnable()
 
-    End Sub
-    ''' <summary>
-    ''' Sets links to key controls as filters
-    ''' </summary>
-    ''' <param name="ucrControl"></param>
-    Private Sub AssignLinkToKeyField(ucrControl As ucrBaseDataLink)
-        ucrControl.AddLinkedControlFilters(ucrStationSelector, "stationId", "==", strLinkedFieldName:="stationId", bForceValuesAsString:=True)
-        ucrControl.AddLinkedControlFilters(ucrElementSelector, "elementId", "==", strLinkedFieldName:="elementId", bForceValuesAsString:=False)
-        ucrControl.AddLinkedControlFilters(ucrYearSelector, "yyyy", "==", strLinkedFieldName:="Year", bForceValuesAsString:=False)
-        ucrControl.AddLinkedControlFilters(ucrMonth, "mm", "==", strLinkedFieldName:="MonthId", bForceValuesAsString:=False)
-        ucrControl.AddLinkedControlFilters(ucrHour, "hh", "==", strLinkedFieldName:="24Hrs", bForceValuesAsString:=False)
     End Sub
 
     Private Sub cmdAssignSameValue_Click(sender As Object, e As EventArgs) Handles cmdAssignSameValue.Click
@@ -95,8 +59,13 @@ Public Class frmNewFormDaily2
     End Sub
 
     Private Sub btnCommit_Click(sender As Object, e As EventArgs) Handles btnCommit.Click
+        If Not ValidateValues() Then
+            Exit Sub
+        End If
+
         'Confirm if you want to continue and save data from key-entry form to database table
         Dim dlgResponse As DialogResult
+
         dlgResponse = MessageBox.Show("Do you want to continue and commit to database table?", "Save Record", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
         If dlgResponse = DialogResult.Yes Then
 
@@ -107,6 +76,7 @@ Public Class frmNewFormDaily2
             End If
             clsDataConnection.SaveUpdate()
             ucrDaiy2Navigation.ResetControls()
+            ucrDaiy2Navigation.GoToNewRecord()
             SaveEnable()
         Else
             MessageBox.Show("Record not Saved", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -117,6 +87,7 @@ Public Class frmNewFormDaily2
 
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         Dim dlgResponse As DialogResult
+
         'Prompts the user if they really want to delete a record
         dlgResponse = MessageBox.Show("Are you sure you want to delete this record?", "Delete Record", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
         If dlgResponse = DialogResult.Yes Then
@@ -167,12 +138,19 @@ Public Class frmNewFormDaily2
         If ucrDaiy2Navigation.iMaxRows > 0 Then
             btnDelete.Enabled = True
             btnUpdate.Enabled = True
+        Else
+            btnDelete.Enabled = False
+            btnUpdate.Enabled = False
         End If
     End Sub
 
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
 
         Try
+            If Not ValidateValues() Then
+                Exit Sub
+            End If
+
             If MessageBox.Show("Are you sure you want to update this record?", "Update Record", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 clsDataConnection.db.Entry(ucrFormDaily.fd2Record).State = Entity.EntityState.Modified
                 clsDataConnection.db.SaveChanges()
@@ -216,4 +194,44 @@ Public Class frmNewFormDaily2
     Private Sub btnUpload_Click(sender As Object, e As EventArgs) Handles btnUpload.Click
         ucrFormDaily.UploadAllRecords()
     End Sub
+    Private Function ValidateValues() As Boolean
+        If Not ucrStationSelector.ValidateValue Then
+            MsgBox("Invalid Station", MsgBoxStyle.Exclamation)
+            Return False
+        End If
+
+        If Not ucrElementSelector.ValidateValue Then
+            MsgBox("Invalid Element", MsgBoxStyle.Exclamation)
+            Return False
+        End If
+
+        If Not ucrMonth.ValidateValue Then
+            MsgBox("Invalid Element", MsgBoxStyle.Exclamation)
+            Return False
+        End If
+
+        If Not ucrYearSelector.ValidateValue Then
+            MsgBox("Invalid Year", MsgBoxStyle.Exclamation)
+            Return False
+        End If
+
+        If Not ucrHour.ValidateValue Then
+            MsgBox("Invalid Hour", MsgBoxStyle.Exclamation)
+            Return False
+        End If
+
+        If Not ucrFormDaily.checkTotal Then
+            Return False
+        End If
+
+        Return True
+
+    End Function
+
+    Private Sub AllControls_KeyDown(sender As Object, e As KeyEventArgs) Handles ucrYearSelector.evtKeyDown, ucrStationSelector.evtKeyDown, ucrMonth.evtKeyDown, ucrHour.evtKeyDown, ucrFormDaily.evtKeyDown, ucrElementSelector.evtKeyDown
+        If e.KeyCode = Keys.Enter Then
+            Me.SelectNextControl(sender, True, True, True, True)
+        End If
+    End Sub
+
 End Class

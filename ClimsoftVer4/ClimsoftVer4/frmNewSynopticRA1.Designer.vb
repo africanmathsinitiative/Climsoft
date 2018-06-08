@@ -52,7 +52,7 @@ Partial Class frmNewSynopticRA1
         'lblYear
         '
         lblYear.AutoSize = True
-        lblYear.Location = New System.Drawing.Point(338, 19)
+        lblYear.Location = New System.Drawing.Point(339, 17)
         lblYear.Name = "lblYear"
         lblYear.Size = New System.Drawing.Size(32, 13)
         lblYear.TabIndex = 205
@@ -61,7 +61,7 @@ Partial Class frmNewSynopticRA1
         'lblStationSelector
         '
         Me.lblStationSelector.AutoSize = True
-        Me.lblStationSelector.Location = New System.Drawing.Point(55, 18)
+        Me.lblStationSelector.Location = New System.Drawing.Point(56, 17)
         Me.lblStationSelector.Name = "lblStationSelector"
         Me.lblStationSelector.Size = New System.Drawing.Size(86, 13)
         Me.lblStationSelector.TabIndex = 209
@@ -70,7 +70,7 @@ Partial Class frmNewSynopticRA1
         'lblHour
         '
         Me.lblHour.AutoSize = True
-        Me.lblHour.Location = New System.Drawing.Point(693, 19)
+        Me.lblHour.Location = New System.Drawing.Point(694, 17)
         Me.lblHour.Name = "lblHour"
         Me.lblHour.Size = New System.Drawing.Size(33, 13)
         Me.lblHour.TabIndex = 208
@@ -79,7 +79,7 @@ Partial Class frmNewSynopticRA1
         'lblDay
         '
         Me.lblDay.AutoSize = True
-        Me.lblDay.Location = New System.Drawing.Point(597, 19)
+        Me.lblDay.Location = New System.Drawing.Point(598, 17)
         Me.lblDay.Name = "lblDay"
         Me.lblDay.Size = New System.Drawing.Size(29, 13)
         Me.lblDay.TabIndex = 207
@@ -88,7 +88,7 @@ Partial Class frmNewSynopticRA1
         'lblMonth
         '
         Me.lblMonth.AutoSize = True
-        Me.lblMonth.Location = New System.Drawing.Point(448, 19)
+        Me.lblMonth.Location = New System.Drawing.Point(449, 17)
         Me.lblMonth.Name = "lblMonth"
         Me.lblMonth.Size = New System.Drawing.Size(40, 13)
         Me.lblMonth.TabIndex = 206
@@ -96,6 +96,7 @@ Partial Class frmNewSynopticRA1
         '
         'btnTDCF
         '
+        Me.btnTDCF.Enabled = False
         Me.btnTDCF.Location = New System.Drawing.Point(541, 567)
         Me.btnTDCF.Name = "btnTDCF"
         Me.btnTDCF.Size = New System.Drawing.Size(64, 23)
@@ -115,6 +116,7 @@ Partial Class frmNewSynopticRA1
         'btnUpload
         '
         Me.btnUpload.BackColor = System.Drawing.Color.Lime
+        Me.btnUpload.Enabled = False
         Me.btnUpload.Location = New System.Drawing.Point(682, 596)
         Me.btnUpload.Name = "btnUpload"
         Me.btnUpload.Size = New System.Drawing.Size(75, 23)
@@ -216,7 +218,7 @@ Partial Class frmNewSynopticRA1
         Me.ucrDay.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrDay.Name = "ucrDay"
         Me.ucrDay.Size = New System.Drawing.Size(51, 24)
-        Me.ucrDay.TabIndex = 215
+        Me.ucrDay.TabIndex = 3
         '
         'ucrSynopticRA1
         '
@@ -224,7 +226,7 @@ Partial Class frmNewSynopticRA1
         Me.ucrSynopticRA1.Margin = New System.Windows.Forms.Padding(6, 8, 6, 8)
         Me.ucrSynopticRA1.Name = "ucrSynopticRA1"
         Me.ucrSynopticRA1.Size = New System.Drawing.Size(820, 477)
-        Me.ucrSynopticRA1.TabIndex = 214
+        Me.ucrSynopticRA1.TabIndex = 5
         '
         'ucrHour
         '
@@ -232,7 +234,7 @@ Partial Class frmNewSynopticRA1
         Me.ucrHour.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrHour.Name = "ucrHour"
         Me.ucrHour.Size = New System.Drawing.Size(59, 24)
-        Me.ucrHour.TabIndex = 213
+        Me.ucrHour.TabIndex = 4
         '
         'ucrMonth
         '
@@ -240,7 +242,7 @@ Partial Class frmNewSynopticRA1
         Me.ucrMonth.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrMonth.Name = "ucrMonth"
         Me.ucrMonth.Size = New System.Drawing.Size(100, 24)
-        Me.ucrMonth.TabIndex = 212
+        Me.ucrMonth.TabIndex = 2
         '
         'ucrYearSelector
         '
@@ -248,7 +250,7 @@ Partial Class frmNewSynopticRA1
         Me.ucrYearSelector.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrYearSelector.Name = "ucrYearSelector"
         Me.ucrYearSelector.Size = New System.Drawing.Size(69, 24)
-        Me.ucrYearSelector.TabIndex = 211
+        Me.ucrYearSelector.TabIndex = 1
         '
         'ucrStationSelector
         '
@@ -256,7 +258,7 @@ Partial Class frmNewSynopticRA1
         Me.ucrStationSelector.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrStationSelector.Name = "ucrStationSelector"
         Me.ucrStationSelector.Size = New System.Drawing.Size(184, 24)
-        Me.ucrStationSelector.TabIndex = 210
+        Me.ucrStationSelector.TabIndex = 0
         '
         'frmNewSynopticRA1
         '

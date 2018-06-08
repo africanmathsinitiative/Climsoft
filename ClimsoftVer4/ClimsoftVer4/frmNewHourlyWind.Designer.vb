@@ -54,7 +54,7 @@ Partial Class frmNewHourlyWind
         'lblYear
         '
         lblYear.AutoSize = True
-        lblYear.Location = New System.Drawing.Point(213, 6)
+        lblYear.Location = New System.Drawing.Point(216, 7)
         lblYear.Name = "lblYear"
         lblYear.Size = New System.Drawing.Size(32, 13)
         lblYear.TabIndex = 216
@@ -63,7 +63,7 @@ Partial Class frmNewHourlyWind
         'lblStationSelector
         '
         Me.lblStationSelector.AutoSize = True
-        Me.lblStationSelector.Location = New System.Drawing.Point(9, 6)
+        Me.lblStationSelector.Location = New System.Drawing.Point(13, 7)
         Me.lblStationSelector.Name = "lblStationSelector"
         Me.lblStationSelector.Size = New System.Drawing.Size(43, 13)
         Me.lblStationSelector.TabIndex = 220
@@ -72,7 +72,7 @@ Partial Class frmNewHourlyWind
         'lblDay
         '
         Me.lblDay.AutoSize = True
-        Me.lblDay.Location = New System.Drawing.Point(417, 6)
+        Me.lblDay.Location = New System.Drawing.Point(422, 7)
         Me.lblDay.Name = "lblDay"
         Me.lblDay.Size = New System.Drawing.Size(29, 13)
         Me.lblDay.TabIndex = 218
@@ -81,7 +81,7 @@ Partial Class frmNewHourlyWind
         'lblMonth
         '
         Me.lblMonth.AutoSize = True
-        Me.lblMonth.Location = New System.Drawing.Point(301, 6)
+        Me.lblMonth.Location = New System.Drawing.Point(304, 7)
         Me.lblMonth.Name = "lblMonth"
         Me.lblMonth.Size = New System.Drawing.Size(40, 13)
         Me.lblMonth.TabIndex = 217
@@ -99,6 +99,7 @@ Partial Class frmNewHourlyWind
         'btnUpload
         '
         Me.btnUpload.BackColor = System.Drawing.Color.Lime
+        Me.btnUpload.Enabled = False
         Me.btnUpload.Location = New System.Drawing.Point(569, 532)
         Me.btnUpload.Name = "btnUpload"
         Me.btnUpload.Size = New System.Drawing.Size(75, 23)
@@ -130,7 +131,7 @@ Partial Class frmNewHourlyWind
         Me.btnSave.Location = New System.Drawing.Point(86, 508)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(75, 23)
-        Me.btnSave.TabIndex = 662
+        Me.btnSave.TabIndex = 5
         Me.btnSave.Text = "Save"
         Me.btnSave.UseVisualStyleBackColor = True
         '
@@ -241,7 +242,7 @@ Partial Class frmNewHourlyWind
         Me.ucrHourlyWind.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.ucrHourlyWind.Name = "ucrHourlyWind"
         Me.ucrHourlyWind.Size = New System.Drawing.Size(642, 389)
-        Me.ucrHourlyWind.TabIndex = 678
+        Me.ucrHourlyWind.TabIndex = 4
         '
         'ucrNavigation
         '
@@ -257,7 +258,7 @@ Partial Class frmNewHourlyWind
         Me.ucrDay.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrDay.Name = "ucrDay"
         Me.ucrDay.Size = New System.Drawing.Size(51, 24)
-        Me.ucrDay.TabIndex = 225
+        Me.ucrDay.TabIndex = 3
         '
         'ucrMonth
         '
@@ -265,7 +266,7 @@ Partial Class frmNewHourlyWind
         Me.ucrMonth.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrMonth.Name = "ucrMonth"
         Me.ucrMonth.Size = New System.Drawing.Size(100, 24)
-        Me.ucrMonth.TabIndex = 223
+        Me.ucrMonth.TabIndex = 2
         '
         'ucrYearSelector
         '
@@ -273,7 +274,7 @@ Partial Class frmNewHourlyWind
         Me.ucrYearSelector.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrYearSelector.Name = "ucrYearSelector"
         Me.ucrYearSelector.Size = New System.Drawing.Size(69, 24)
-        Me.ucrYearSelector.TabIndex = 222
+        Me.ucrYearSelector.TabIndex = 1
         '
         'ucrStationSelector
         '
@@ -281,7 +282,7 @@ Partial Class frmNewHourlyWind
         Me.ucrStationSelector.Margin = New System.Windows.Forms.Padding(9, 12, 9, 12)
         Me.ucrStationSelector.Name = "ucrStationSelector"
         Me.ucrStationSelector.Size = New System.Drawing.Size(184, 24)
-        Me.ucrStationSelector.TabIndex = 221
+        Me.ucrStationSelector.TabIndex = 0
         '
         'frmNewHourlyWind
         '

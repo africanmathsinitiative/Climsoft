@@ -1,5 +1,7 @@
 ﻿Public Class frmNewHourlyWind
     Private bFirstLoad As Boolean = True
+    Dim iDirectionDigits As Integer
+    Dim iSpeedDigits As Integer
 
     Private Sub frmNewHourlyWind_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If bFirstLoad Then
@@ -9,12 +11,16 @@
     End Sub
 
     Private Sub InitaliseDialog()
-        ucrStationSelector.SortByStationName()
-
         ucrDay.setYearAndMonthLink(ucrYearSelector, ucrMonth)
 
-        ucrHourlyWind.SetSpeedDigits(Val(txtSpeedDigits.Text))
-        ucrHourlyWind.SetDirectionDigits(Val(txtDirectionDigits.Text))
+        'get default database direction and speed digits, then set them to the controls
+        SetDirectionAndSpeedDigits()
+        txtDirectionDigits.Text = iDirectionDigits
+        txtSpeedDigits.Text = iSpeedDigits
+
+        ucrHourlyWind.SetDirectionDigits(iDirectionDigits)
+        ucrHourlyWind.SetSpeedDigits(iSpeedDigits)
+
         ucrHourlyWind.SetDirectionValidation(112)
         ucrHourlyWind.SetSpeedValidation(111)
 
@@ -63,44 +69,20 @@
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         Try
-            'Check if header information is complete. If the header information is complete and there is at least on obs value then,
-            'carry out the next actions, otherwise bring up message showing that there is insufficient data
-            If (Not ucrHourlyWind.IsDirectionValuesEmpty) And Strings.Len(ucrStationSelector.GetValue) > 0 And Strings.Len(ucrYearSelector.GetValue) > 0 And Strings.Len(ucrMonth.GetValue) And Strings.Len(ucrDay.GetValue) > 0 Then
 
-                'TODO
-                'Check valid station
-                'Check valid year
-                'Check valid month
-                'Check valid Day
-                'Check future date
-                'MsgBox("Evaluated observation date [ " & DateSerial(yyyy, mm, dd) & "]. Dates greater than today not accepted!", MsgBoxStyle.Critical)
-
-                'Then Do QC Checks. 
-                'based on upper & lower limit for wind direction 
-                If Not ucrHourlyWind.QcForDirection() Then
-                    Exit Sub
-                End If
-                'based on upper & lower limit for wind speed 
-                If Not ucrHourlyWind.CheckQcForSpeed() Then
-                    Exit Sub
-                End If
-
-                'check total if its required
-                If Not ucrHourlyWind.checkTotal() Then
-                    Exit Sub
-                End If
-
-                'then go ahead and save to database
-                If MessageBox.Show("Do you want to continue and commit to database table?", "Save Record", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                    ucrHourlyWind.SaveRecord()
-                    ucrNavigation.ResetControls()
-                    ucrNavigation.GoToNewRecord()
-                    SaveEnable()
-                    MessageBox.Show("New record added to database table!", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                End If
-            Else
-                MessageBox.Show("Incomplete header information and insufficient observation data!", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            If Not ValidateValues() Then
+                Exit Sub
             End If
+
+            'then go ahead and save to database
+            If MessageBox.Show("Do you want to continue and commit to database table?", "Save Record", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                ucrHourlyWind.SaveRecord()
+                ucrNavigation.ResetControls()
+                ucrNavigation.GoToNewRecord()
+                SaveEnable()
+                MessageBox.Show("New record added to database table!", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+
         Catch ex As Exception
             MessageBox.Show("New Record has NOT been added to database table. Error: " & ex.Message, "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -108,6 +90,10 @@
 
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         Try
+            If Not ValidateValues() Then
+                Exit Sub
+            End If
+
             If MessageBox.Show("Are you sure you want to update this record?", "Update Record", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
                 ucrHourlyWind.SaveRecord()
                 MessageBox.Show("Record updated successfully!", "Update Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -131,18 +117,9 @@
     End Sub
 
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
-        'SAMUEL IS DOING THIS AND I'M NOT SURE WHY BUT I DID IT TO HAVE
-        'A SIMILAR IMPLEMENTATION, THE CHECKING OF HEADER INFORMATION
-        'COULD BE REMOVED IF ITS NOT NECESSARY
-        'Check if header information is complete. If the header information is complete and there is at least on obs value then,
-        'carry out the next actions, otherwise bring up message showing that there is insufficient data
-        'If (Not ucrHourlyWind.IsDirectionValuesEmpty) AndAlso Strings.Len(ucrStationSelector.GetValue) > 0 AndAlso Strings.Len(ucrYearSelector.GetValue) > 0 AndAlso Strings.Len(ucrMonth.GetValue) AndAlso Strings.Len(ucrDay.GetValue) > 0 Then
         ucrNavigation.ResetControls()
         ucrNavigation.MoveFirst()
         SaveEnable()
-        'Else
-        'MessageBox.Show("Incomplete header information and insufficient observation data!", "Clear Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        'End If
     End Sub
 
     'This is from Samuel's code
@@ -179,7 +156,82 @@
         If ucrNavigation.iMaxRows > 0 Then
             btnDelete.Enabled = True
             btnUpdate.Enabled = True
+        Else
+            btnDelete.Enabled = False
+            btnUpdate.Enabled = False
         End If
     End Sub
 
+    Private Function ValidateValues() As Boolean
+        'Check valid station
+        If Not ucrStationSelector.ValidateValue() Then
+            MessageBox.Show("Invalid station", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            Return False
+        End If
+
+        'Check valid year
+        If Not ucrYearSelector.ValidateValue() Then
+            MessageBox.Show("Invalid year", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            Return False
+        End If
+
+        'Check valid month
+        If Not ucrMonth.ValidateValue() Then
+            MessageBox.Show("Invalid Month", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            Return False
+        End If
+
+        'Check valid Day
+        If Not ucrDay.ValidateValue() Then
+            MessageBox.Show("Invalid day", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            Return False
+        End If
+
+        'Check if all values are empty. There should be atleast one observation value
+        If ucrHourlyWind.IsDirectionValuesEmpty() Then
+            MessageBox.Show("Insufficient observation data!", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            Return False
+        End If
+
+        'check if values are valid.  
+        If Not ucrHourlyWind.IsValuesValid() Then
+            Return False
+        End If
+
+        'check speed total required
+        If Not ucrHourlyWind.checkSpeedTotal() Then
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    ''' <summary>
+    ''' This sets the direction and speed digits from the database 
+    ''' by getting the values from the regkeys database table
+    ''' </summary>
+    Private Sub SetDirectionAndSpeedDigits()
+        Try
+            Dim clsDataDefinition As DataCall
+            Dim dtbl As DataTable
+            Dim row As DataRow
+
+            clsDataDefinition = New DataCall
+            clsDataDefinition.SetTableName("regkeys")
+            clsDataDefinition.SetFields(New List(Of String)({"keyName", "keyValue"}))
+            dtbl = clsDataDefinition.GetDataTable()
+            If dtbl IsNot Nothing AndAlso dtbl.Rows.Count > 0 Then
+                'get direction digits
+                row = dtbl.Select("keyName = 'key05'").FirstOrDefault()
+                iDirectionDigits = If(row IsNot Nothing, Integer.Parse(row.Item("keyValue")), 0)
+
+                'get speed digits
+                row = dtbl.Select("keyName = 'key06'").FirstOrDefault()
+                iSpeedDigits = If(row IsNot Nothing, Integer.Parse(row.Item("keyValue")), 0)
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show("Error in getting direction and speed digits in the database . Error: " & ex.Message, "Digits", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
 End Class
