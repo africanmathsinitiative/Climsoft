@@ -77,5 +77,8 @@ Partial Public Class mariadb_climsoft_test_db_v4Entities
     Public Overridable Property physicalfeatures() As DbSet(Of physicalfeature)
     Public Overridable Property seq_month_day_element() As DbSet(Of seq_month_day_element)
     Public Overridable Property seq_month_day_element_leap_yr() As DbSet(Of seq_month_day_element_leap_yr)
+    Public Overridable Property climsoft_database_metadata() As DbSet(Of climsoft_database_metadata)
+    Public Overridable Property form_monthly() As DbSet(Of form_monthly)
+    Public Overridable Property observationschedules() As DbSet(Of observationschedule)
 
 End Class

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="mariadb_climsoft_test_db_v4Model.Store" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.7" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="mariadb_climsoft_test_db_v4Model.Store" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.7" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <!--Errors Found During Generation:
 warning 6002: The table/view 'def.mariadb_climsoft_test_db_v4.abc' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="abc">
@@ -262,6 +262,13 @@ warning 6002: The table/view 'def.mariadb_climsoft_test_db_v4.aws1' does not hav
           <Property Name="lower_limit" Type="text" Nullable="false" />
           <Property Name="upper_limit" Type="text" Nullable="false" />
           <Property Name="obsv" Type="text" Nullable="false" />
+        </EntityType>
+        <EntityType Name="climsoft_database_metadata">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Value" Type="tinytext" Nullable="false" />
         </EntityType>
         <EntityType Name="climsoftusers">
           <Key>
@@ -582,12 +589,15 @@ warning 6002: The table/view 'def.mariadb_climsoft_test_db_v4.featuregeographica
           <Property Name="total" Type="varchar" MaxLength="50" />
           <Property Name="signature" Type="varchar" MaxLength="50" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6013: The table/view 'def.mariadb_climsoft_test_db_v4.form_monthly' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
         <EntityType Name="form_monthly">
-          <Property Name="stationId" Type="varchar" MaxLength="255" />
-          <Property Name="elementId" Type="int" />
-          <Property Name="yyyy" Type="int" />
+          <Key>
+            <PropertyRef Name="stationId" />
+            <PropertyRef Name="elementId" />
+            <PropertyRef Name="yyyy" />
+          </Key>
+          <Property Name="stationId" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="elementId" Type="int" Nullable="false" />
+          <Property Name="yyyy" Type="int" Nullable="false" />
           <Property Name="mm_01" Type="varchar" MaxLength="255" />
           <Property Name="mm_02" Type="varchar" MaxLength="255" />
           <Property Name="mm_03" Type="varchar" MaxLength="255" />
@@ -625,7 +635,7 @@ warning 6013: The table/view 'def.mariadb_climsoft_test_db_v4.form_monthly' does
           <Property Name="period11" Type="varchar" MaxLength="255" />
           <Property Name="period12" Type="varchar" MaxLength="255" />
           <Property Name="signature" Type="varchar" MaxLength="50" />
-        </EntityType>-->
+        </EntityType>
         <EntityType Name="form_synoptic_2_ra1">
           <Key>
             <PropertyRef Name="stationId" />
@@ -909,15 +919,15 @@ warning 6013: The table/view 'def.mariadb_climsoft_test_db_v4.instrumentinspecti
           <Property Name="elementtype" Type="varchar" MaxLength="50" />
           <Property Name="qcTotalRequired" Type="tinyint" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'def.mariadb_climsoft_test_db_v4.observationfinal' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="observationfinal">
           <Key>
             <PropertyRef Name="recordedFrom" />
+            <PropertyRef Name="describedBy" />
+            <PropertyRef Name="obsDatetime" />
           </Key>
           <Property Name="recordedFrom" Type="varchar" MaxLength="255" Nullable="false" />
-          <Property Name="describedBy" Type="bigint" />
-          <Property Name="obsDatetime" Type="datetime" Precision="0" />
+          <Property Name="describedBy" Type="bigint" Nullable="false" />
+          <Property Name="obsDatetime" Type="datetime" Precision="0" Nullable="false" />
           <Property Name="obsLevel" Type="varchar" MaxLength="255" />
           <Property Name="obsValue" Type="decimal" Precision="8" Scale="2" />
           <Property Name="flag" Type="varchar" MaxLength="255" />
@@ -934,22 +944,24 @@ warning 6002: The table/view 'def.mariadb_climsoft_test_db_v4.observationfinal' 
           <Property Name="visUnits" Type="varchar" MaxLength="255" />
           <Property Name="dataSourceTimeZone" Type="int" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'def.mariadb_climsoft_test_db_v4.observationinitial' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="observationinitial">
           <Key>
             <PropertyRef Name="recordedFrom" />
+            <PropertyRef Name="describedBy" />
+            <PropertyRef Name="obsDatetime" />
+            <PropertyRef Name="qcStatus" />
+            <PropertyRef Name="acquisitionType" />
           </Key>
           <Property Name="recordedFrom" Type="varchar" MaxLength="255" Nullable="false" />
-          <Property Name="describedBy" Type="bigint" />
-          <Property Name="obsDatetime" Type="datetime" Precision="0" />
+          <Property Name="describedBy" Type="bigint" Nullable="false" />
+          <Property Name="obsDatetime" Type="datetime" Precision="0" Nullable="false" />
           <Property Name="obsLevel" Type="varchar" MaxLength="255" />
           <Property Name="obsValue" Type="varchar" MaxLength="255" />
           <Property Name="flag" Type="varchar" MaxLength="255" />
           <Property Name="period" Type="int" />
-          <Property Name="qcStatus" Type="int" />
+          <Property Name="qcStatus" Type="int" Nullable="false" />
           <Property Name="qcTypeLog" Type="text" />
-          <Property Name="acquisitionType" Type="int" />
+          <Property Name="acquisitionType" Type="int" Nullable="false" />
           <Property Name="dataForm" Type="varchar" MaxLength="255" />
           <Property Name="capturedBy" Type="varchar" MaxLength="255" />
           <Property Name="mark" Type="tinyint" />
@@ -959,15 +971,18 @@ warning 6002: The table/view 'def.mariadb_climsoft_test_db_v4.observationinitial
           <Property Name="visUnits" Type="varchar" MaxLength="255" />
           <Property Name="dataSourceTimeZone" Type="int" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6013: The table/view 'def.mariadb_climsoft_test_db_v4.observationschedule' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
         <EntityType Name="observationschedule">
-          <Property Name="classifiedInto" Type="varchar" MaxLength="255" />
-          <Property Name="startTime" Type="time" Precision="0" />
-          <Property Name="endTime" Type="time" Precision="0" />
+          <Key>
+            <PropertyRef Name="classifiedInto" />
+            <PropertyRef Name="startTime" />
+            <PropertyRef Name="endTime" />
+          </Key>
+          <Property Name="classifiedInto" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="startTime" Type="time" Precision="0" Nullable="false" />
+          <Property Name="endTime" Type="time" Precision="0" Nullable="false" />
           <Property Name="interval" Type="varchar" MaxLength="255" />
           <Property Name="additionalObsTime" Type="varchar" MaxLength="255" />
-        </EntityType>-->
+        </EntityType>
         <EntityType Name="obsscheduleclass">
           <Key>
             <PropertyRef Name="scheduleClass" />
@@ -1283,7 +1298,7 @@ warning 6013: The table/view 'def.mariadb_climsoft_test_db_v4.stationqualifier' 
           <Property Name="prCategory" Type="varchar" MaxLength="50" />
         </EntityType>
         <Association Name="FK_maria_climsoft_db_v4_obselement_observationInitial">
-          <End Role="obselement" Type="Self.obselement" Multiplicity="0..1" />
+          <End Role="obselement" Type="Self.obselement" Multiplicity="1" />
           <End Role="observationinitial" Type="Self.observationinitial" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="obselement">
@@ -1296,7 +1311,7 @@ warning 6013: The table/view 'def.mariadb_climsoft_test_db_v4.stationqualifier' 
         </Association>
         <Association Name="FK_maria_climsoft_db_v4_station_observationInitial">
           <End Role="station" Type="Self.station" Multiplicity="1" />
-          <End Role="observationinitial" Type="Self.observationinitial" Multiplicity="0..1" />
+          <End Role="observationinitial" Type="Self.observationinitial" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="station">
               <PropertyRef Name="stationId" />
@@ -1352,7 +1367,7 @@ error 6004: The table 'def.mariadb_climsoft_test_db_v4.instrumentinspection' is 
 error 6004: The table 'def.mariadb_climsoft_test_db_v4.faultresolution' is referenced by a relationship, but cannot be found.
         <Association Name="FK_mysql_climsoft_db_v4_instrumentFaultReport_faultResolution" />-->
         <Association Name="FK_mysql_climsoft_db_v4_obselement_observationFinal">
-          <End Role="obselement" Type="Self.obselement" Multiplicity="0..1" />
+          <End Role="obselement" Type="Self.obselement" Multiplicity="1" />
           <End Role="observationfinal" Type="Self.observationfinal" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="obselement">
@@ -1363,9 +1378,18 @@ error 6004: The table 'def.mariadb_climsoft_test_db_v4.faultresolution' is refer
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <!--Errors Found During Generation:
-error 6004: The table 'def.mariadb_climsoft_test_db_v4.observationschedule' is referenced by a relationship, but cannot be found.
-        <Association Name="FK_mysql_climsoft_db_v4_obsSchedule" />-->
+        <Association Name="FK_mysql_climsoft_db_v4_obsSchedule">
+          <End Role="obsscheduleclass" Type="Self.obsscheduleclass" Multiplicity="1" />
+          <End Role="observationschedule" Type="Self.observationschedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="obsscheduleclass">
+              <PropertyRef Name="scheduleClass" />
+            </Principal>
+            <Dependent Role="observationschedule">
+              <PropertyRef Name="classifiedInto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <!--Errors Found During Generation:
 error 6004: The table 'def.mariadb_climsoft_test_db_v4.routinereporttransmission' is referenced by a relationship, but cannot be found.
         <Association Name="FK_mysql_climsoft_db_v4_routineReportTransmissionClass" />-->
@@ -1401,7 +1425,7 @@ error 6004: The table 'def.mariadb_climsoft_test_db_v4.instrumentinspection' is 
         <Association Name="FK_mysql_climsoft_db_v4_station_instrumentInspection" />-->
         <Association Name="FK_mysql_climsoft_db_v4_station_observationFinal">
           <End Role="station" Type="Self.station" Multiplicity="1" />
-          <End Role="observationfinal" Type="Self.observationfinal" Multiplicity="0..1" />
+          <End Role="observationfinal" Type="Self.observationfinal" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="station">
               <PropertyRef Name="stationId" />
@@ -1476,6 +1500,7 @@ warning 6035: The relationship 'FK_mysql_climsoft_db_v4_synopfeatureFeatureGeogr
           <EntitySet Name="aws_structures" EntityType="Self.aws_structures" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="aws_tahmo" EntityType="Self.aws_tahmo" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="aws_toa5_mg2" EntityType="Self.aws_toa5_mg2" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
+          <EntitySet Name="climsoft_database_metadata" EntityType="Self.climsoft_database_metadata" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="climsoftusers" EntityType="Self.climsoftusers" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="data_forms" EntityType="Self.data_forms" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="flags" EntityType="Self.flags" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
@@ -1483,12 +1508,16 @@ warning 6035: The relationship 'FK_mysql_climsoft_db_v4_synopfeatureFeatureGeogr
           <EntitySet Name="form_hourly" EntityType="Self.form_hourly" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="form_hourly_time_selection" EntityType="Self.form_hourly_time_selection" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="form_hourlywind" EntityType="Self.form_hourlywind" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
+          <EntitySet Name="form_monthly" EntityType="Self.form_monthly" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="form_synoptic_2_ra1" EntityType="Self.form_synoptic_2_ra1" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="form_synoptic2_tdcf" EntityType="Self.form_synoptic2_tdcf" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="instrument" EntityType="Self.instrument" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="instrumentfaultreport" EntityType="Self.instrumentfaultreport" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="language_translation" EntityType="Self.language_translation" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="obselement" EntityType="Self.obselement" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
+          <EntitySet Name="observationfinal" EntityType="Self.observationfinal" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
+          <EntitySet Name="observationinitial" EntityType="Self.observationinitial" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
+          <EntitySet Name="observationschedule" EntityType="Self.observationschedule" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="obsscheduleclass" EntityType="Self.obsscheduleclass" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="paperarchivedefinition" EntityType="Self.paperarchivedefinition" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
           <EntitySet Name="physicalfeatureclass" EntityType="Self.physicalfeatureclass" Schema="mariadb_climsoft_test_db_v4" store:Type="Tables" />
@@ -1559,50 +1588,6 @@ FROM `aws1` AS `aws1`</DefiningQuery>
 `featuregeographicalposition`.`longitude`
 FROM `featuregeographicalposition` AS `featuregeographicalposition`</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="observationfinal" EntityType="Self.observationfinal" store:Type="Tables" store:Schema="mariadb_climsoft_test_db_v4">
-            <DefiningQuery>SELECT
-`observationfinal`.`recordedFrom`, 
-`observationfinal`.`describedBy`, 
-`observationfinal`.`obsDatetime`, 
-`observationfinal`.`obsLevel`, 
-`observationfinal`.`obsValue`, 
-`observationfinal`.`flag`, 
-`observationfinal`.`period`, 
-`observationfinal`.`qcStatus`, 
-`observationfinal`.`qcTypeLog`, 
-`observationfinal`.`acquisitionType`, 
-`observationfinal`.`dataForm`, 
-`observationfinal`.`capturedBy`, 
-`observationfinal`.`mark`, 
-`observationfinal`.`temperatureUnits`, 
-`observationfinal`.`precipitationUnits`, 
-`observationfinal`.`cloudHeightUnits`, 
-`observationfinal`.`visUnits`, 
-`observationfinal`.`dataSourceTimeZone`
-FROM `observationfinal` AS `observationfinal`</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="observationinitial" EntityType="Self.observationinitial" store:Type="Tables" store:Schema="mariadb_climsoft_test_db_v4">
-            <DefiningQuery>SELECT
-`observationinitial`.`recordedFrom`, 
-`observationinitial`.`describedBy`, 
-`observationinitial`.`obsDatetime`, 
-`observationinitial`.`obsLevel`, 
-`observationinitial`.`obsValue`, 
-`observationinitial`.`flag`, 
-`observationinitial`.`period`, 
-`observationinitial`.`qcStatus`, 
-`observationinitial`.`qcTypeLog`, 
-`observationinitial`.`acquisitionType`, 
-`observationinitial`.`dataForm`, 
-`observationinitial`.`capturedBy`, 
-`observationinitial`.`mark`, 
-`observationinitial`.`temperatureUnits`, 
-`observationinitial`.`precipitationUnits`, 
-`observationinitial`.`cloudHeightUnits`, 
-`observationinitial`.`visUnits`, 
-`observationinitial`.`dataSourceTimeZone`
-FROM `observationinitial` AS `observationinitial`</DefiningQuery>
-          </EntitySet>
           <EntitySet Name="physicalfeature" EntityType="Self.physicalfeature" store:Type="Tables" store:Schema="mariadb_climsoft_test_db_v4">
             <DefiningQuery>SELECT
 `physicalfeature`.`associatedWith`, 
@@ -1647,6 +1632,10 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
             <End Role="obselement" EntitySet="obselement" />
             <End Role="observationfinal" EntitySet="observationfinal" />
           </AssociationSet>
+          <AssociationSet Name="FK_mysql_climsoft_db_v4_obsSchedule" Association="Self.FK_mysql_climsoft_db_v4_obsSchedule">
+            <End Role="obsscheduleclass" EntitySet="obsscheduleclass" />
+            <End Role="observationschedule" EntitySet="observationschedule" />
+          </AssociationSet>
           <AssociationSet Name="FK_mysql_climsoft_db_v4_station_featureClass" Association="Self.FK_mysql_climsoft_db_v4_station_featureClass">
             <End Role="station" EntitySet="station" />
             <End Role="physicalfeatureclass" EntitySet="physicalfeatureclass" />
@@ -1672,8 +1661,7 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
             <End Role="physicalfeature" EntitySet="physicalfeature" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="mariadb_climsoft_test_db_v4Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -2416,6 +2404,7 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
           <Property Name="description" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="refersTo" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="station" Relationship="Self.FK_mysql_climsoft_db_v4_station_scheduleClass" FromRole="obsscheduleclass" ToRole="station" />
+          <NavigationProperty Name="observationschedules" Relationship="mariadb_climsoft_test_db_v4Model.FK_mysql_climsoft_db_v4_obsSchedule" FromRole="obsscheduleclass" ToRole="observationschedule" />
         </EntityType>
         <EntityType Name="paperarchivedefinition">
           <Key>
@@ -3004,7 +2993,93 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
             <End Role="station" EntitySet="stations" />
             <End Role="physicalfeature" EntitySet="physicalfeatures" />
           </AssociationSet>
+          <EntitySet Name="climsoft_database_metadata" EntityType="mariadb_climsoft_test_db_v4Model.climsoft_database_metadata" />
+          <EntitySet Name="form_monthly" EntityType="mariadb_climsoft_test_db_v4Model.form_monthly" />
+          <EntitySet Name="observationschedules" EntityType="mariadb_climsoft_test_db_v4Model.observationschedule" />
+          <AssociationSet Name="FK_mysql_climsoft_db_v4_obsSchedule" Association="mariadb_climsoft_test_db_v4Model.FK_mysql_climsoft_db_v4_obsSchedule">
+            <End Role="obsscheduleclass" EntitySet="obsscheduleclasses" />
+            <End Role="observationschedule" EntitySet="observationschedules" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="climsoft_database_metadata">
+          <Key>
+            <PropertyRef Name="Name" />
+          </Key>
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Value" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="form_monthly">
+          <Key>
+            <PropertyRef Name="stationId" />
+            <PropertyRef Name="elementId" />
+            <PropertyRef Name="yyyy" />
+          </Key>
+          <Property Name="stationId" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="elementId" Type="Int32" Nullable="false" />
+          <Property Name="yyyy" Type="Int32" Nullable="false" />
+          <Property Name="mm_01" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_02" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_03" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_04" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_05" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_06" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_07" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_08" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_09" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_10" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_11" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="mm_12" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag01" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag02" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag03" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag04" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag05" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag06" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag07" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag08" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag09" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag10" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag11" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="flag12" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period01" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period02" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period03" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period04" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period05" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period06" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period07" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period08" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period09" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period10" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period11" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="period12" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="signature" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="observationschedule">
+          <Key>
+            <PropertyRef Name="classifiedInto" />
+            <PropertyRef Name="startTime" />
+            <PropertyRef Name="endTime" />
+          </Key>
+          <Property Name="classifiedInto" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="startTime" Type="Time" Nullable="false" />
+          <Property Name="endTime" Type="Time" Nullable="false" />
+          <Property Name="interval" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="additionalObsTime" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="obsscheduleclass" Relationship="mariadb_climsoft_test_db_v4Model.FK_mysql_climsoft_db_v4_obsSchedule" FromRole="observationschedule" ToRole="obsscheduleclass" />
+        </EntityType>
+        <Association Name="FK_mysql_climsoft_db_v4_obsSchedule">
+          <End Type="mariadb_climsoft_test_db_v4Model.obsscheduleclass" Role="obsscheduleclass" Multiplicity="1" />
+          <End Type="mariadb_climsoft_test_db_v4Model.observationschedule" Role="observationschedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="obsscheduleclass">
+              <PropertyRef Name="scheduleClass" />
+            </Principal>
+            <Dependent Role="observationschedule">
+              <PropertyRef Name="classifiedInto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4072,6 +4147,71 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
                 <ScalarProperty Name="mm" ColumnName="mm" />
                 <ScalarProperty Name="dd" ColumnName="dd" />
                 <ScalarProperty Name="elementId" ColumnName="elementId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="climsoft_database_metadata">
+            <EntityTypeMapping TypeName="mariadb_climsoft_test_db_v4Model.climsoft_database_metadata">
+              <MappingFragment StoreEntitySet="climsoft_database_metadata">
+                <ScalarProperty Name="Value" ColumnName="Value" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="form_monthly">
+            <EntityTypeMapping TypeName="mariadb_climsoft_test_db_v4Model.form_monthly">
+              <MappingFragment StoreEntitySet="form_monthly">
+                <ScalarProperty Name="signature" ColumnName="signature" />
+                <ScalarProperty Name="period12" ColumnName="period12" />
+                <ScalarProperty Name="period11" ColumnName="period11" />
+                <ScalarProperty Name="period10" ColumnName="period10" />
+                <ScalarProperty Name="period09" ColumnName="period09" />
+                <ScalarProperty Name="period08" ColumnName="period08" />
+                <ScalarProperty Name="period07" ColumnName="period07" />
+                <ScalarProperty Name="period06" ColumnName="period06" />
+                <ScalarProperty Name="period05" ColumnName="period05" />
+                <ScalarProperty Name="period04" ColumnName="period04" />
+                <ScalarProperty Name="period03" ColumnName="period03" />
+                <ScalarProperty Name="period02" ColumnName="period02" />
+                <ScalarProperty Name="period01" ColumnName="period01" />
+                <ScalarProperty Name="flag12" ColumnName="flag12" />
+                <ScalarProperty Name="flag11" ColumnName="flag11" />
+                <ScalarProperty Name="flag10" ColumnName="flag10" />
+                <ScalarProperty Name="flag09" ColumnName="flag09" />
+                <ScalarProperty Name="flag08" ColumnName="flag08" />
+                <ScalarProperty Name="flag07" ColumnName="flag07" />
+                <ScalarProperty Name="flag06" ColumnName="flag06" />
+                <ScalarProperty Name="flag05" ColumnName="flag05" />
+                <ScalarProperty Name="flag04" ColumnName="flag04" />
+                <ScalarProperty Name="flag03" ColumnName="flag03" />
+                <ScalarProperty Name="flag02" ColumnName="flag02" />
+                <ScalarProperty Name="flag01" ColumnName="flag01" />
+                <ScalarProperty Name="mm_12" ColumnName="mm_12" />
+                <ScalarProperty Name="mm_11" ColumnName="mm_11" />
+                <ScalarProperty Name="mm_10" ColumnName="mm_10" />
+                <ScalarProperty Name="mm_09" ColumnName="mm_09" />
+                <ScalarProperty Name="mm_08" ColumnName="mm_08" />
+                <ScalarProperty Name="mm_07" ColumnName="mm_07" />
+                <ScalarProperty Name="mm_06" ColumnName="mm_06" />
+                <ScalarProperty Name="mm_05" ColumnName="mm_05" />
+                <ScalarProperty Name="mm_04" ColumnName="mm_04" />
+                <ScalarProperty Name="mm_03" ColumnName="mm_03" />
+                <ScalarProperty Name="mm_02" ColumnName="mm_02" />
+                <ScalarProperty Name="mm_01" ColumnName="mm_01" />
+                <ScalarProperty Name="yyyy" ColumnName="yyyy" />
+                <ScalarProperty Name="elementId" ColumnName="elementId" />
+                <ScalarProperty Name="stationId" ColumnName="stationId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="observationschedules">
+            <EntityTypeMapping TypeName="mariadb_climsoft_test_db_v4Model.observationschedule">
+              <MappingFragment StoreEntitySet="observationschedule">
+                <ScalarProperty Name="additionalObsTime" ColumnName="additionalObsTime" />
+                <ScalarProperty Name="interval" ColumnName="interval" />
+                <ScalarProperty Name="endTime" ColumnName="endTime" />
+                <ScalarProperty Name="startTime" ColumnName="startTime" />
+                <ScalarProperty Name="classifiedInto" ColumnName="classifiedInto" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -16,5 +16,6 @@ Partial Public Class obsscheduleclass
     Public Property refersTo As String
 
     Public Overridable Property station As station
+    Public Overridable Property observationschedules As ICollection(Of observationschedule) = New HashSet(Of observationschedule)
 
 End Class

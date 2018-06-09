@@ -161,6 +161,9 @@
     <Compile Include="climsoftuser.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="climsoft_database_metadata.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="ClsCloneFunctions.vb" />
     <Compile Include="clsDataCall.vb" />
     <Compile Include="clsDataConnection.vb" />
@@ -172,6 +175,9 @@
     <Compile Include="clsTableFilter.vb" />
     <Compile Include="dataEntryGlobalRoutines.vb" />
     <Compile Include="data_forms.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="form_monthly.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="frmNewHourly.Designer.vb">
@@ -535,18 +541,16 @@
     <Compile Include="frmMainMenu.vb">
       <SubType>Form</SubType>
     </Compile>
-
     <Compile Include="frmNewFormDaily2.Designer.vb">
       <DependentUpon>frmNewFormDaily2.vb</DependentUpon>
-    </Compile>    
-      <Compile Include="frmNewFormDaily2.vb">
-        <SubType>Form</SubType>
-      </Compile>
+    </Compile>
+    <Compile Include="frmNewFormDaily2.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmModifyObservations.Designer.vb">
       <DependentUpon>frmModifyObservations.vb</DependentUpon>
     </Compile>
     <Compile Include="frmModifyObservations.vb">
-
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmPlotter.Designer.vb" />
@@ -680,6 +684,9 @@
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="observationinitial.vb">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="observationschedule.vb">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="obsscheduleclass.vb">
@@ -1195,15 +1202,12 @@
     <EmbeddedResource Include="frmMainMenu.resx">
       <DependentUpon>frmMainMenu.vb</DependentUpon>
     </EmbeddedResource>
-
     <EmbeddedResource Include="frmNewFormDaily2.resx">
       <DependentUpon>frmNewFormDaily2.vb</DependentUpon>
     </EmbeddedResource>
-    
     <EmbeddedResource Include="frmModifyObservations.resx">
       <DependentUpon>frmModifyObservations.vb</DependentUpon>
     </EmbeddedResource>
-    
     <EmbeddedResource Include="frmPlotter.resx">
       <DependentUpon>frmPlotter.vb</DependentUpon>
     </EmbeddedResource>
