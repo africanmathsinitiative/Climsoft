@@ -16,6 +16,7 @@
         ucrNavigation.PopulateControl()
 
         SaveEnable()
+        SetControlsKeyDownListners()
     End Sub
 
     Private Sub btnAddNew_Click(sender As Object, e As EventArgs) Handles btnAddNew.Click
@@ -47,7 +48,6 @@
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         Try
-
             If Not ValidateValues() Then
                 Exit Sub
             End If
@@ -60,7 +60,6 @@
                 SaveEnable()
                 MessageBox.Show("New record added to database table!", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
-
         Catch ex As Exception
             MessageBox.Show("New Record has NOT been added to database table. Error: " & ex.Message, "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
@@ -95,45 +94,13 @@
     End Sub
 
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
-        'SAMUEL IS DOING THIS AND I'M NOT SURE WHY BUT I DID IT TO HAVE
-        'A SIMILAR IMPLEMENTATION, THE CHECKING OF HEADER INFORMATION
-        'COULD BE REMOVED IF ITS NOT NECESSARY
-        'Check if header information is complete. If the header information is complete and there is at least on obs value then,
-        'carry out the next actions, otherwise bring up message showing that there is insufficient data
-        'If (Not ucrSynopticRA1.IsValuesEmpty) AndAlso Strings.Len(ucrStationSelector.GetValue) > 0 AndAlso Strings.Len(ucrYearSelector.GetValue) > 0 AndAlso Strings.Len(ucrMonth.GetValue) AndAlso Strings.Len(ucrDay.GetValue) > 0 AndAlso Strings.Len(ucrHour.GetValue) > 0 Then
         ucrNavigation.ResetControls()
         ucrNavigation.MoveFirst()
         SaveEnable()
-        'Else
-        'MessageBox.Show("Incomplete header information and insufficient observation data!", "Clear Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        'End If
-    End Sub
-
-    'This is from Samuel's code
-    Private Sub btnHelp_Click(sender As Object, e As EventArgs) Handles btnHelp.Click
-        Help.ShowHelp(Me, Application.StartupPath & "\climsoft4.chm", "keyentryoperations.htm#form_synopticRA1")
-    End Sub
-
-    'This is from Samuel's code
-    Private Sub btnView_Click(sender As Object, e As EventArgs) Handles btnView.Click
-        Dim viewRecords As New dataEntryGlobalRoutines
-        Dim sql, userName As String
-        userName = frmLogin.txtUsername.Text
-        dsSourceTableName = "form_synoptic_2_RA1"
-        If userGroup = "ClimsoftOperator" Or userGroup = "ClimsoftRainfall" Then
-            sql = "SELECT * FROM form_synoptic_2_RA1 where signature ='" & userName & "' ORDER by stationId,yyyy,mm,dd,hh;"
-        Else
-            sql = "SELECT * FROM form_synoptic_2_RA1 ORDER by stationId,yyyy,mm,dd,hh;"
-        End If
-        viewRecords.viewTableRecords(sql)
     End Sub
 
     Private Sub btnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
         Me.Close()
-    End Sub
-
-    Private Sub btnUpload_Click(sender As Object, e As EventArgs) Handles btnUpload.Click
-        'TODO
     End Sub
 
     Private Sub SaveEnable()
@@ -180,16 +147,141 @@
             Return False
         End If
 
-        'Then Do QC Checks. 
-        'based on upper & lower limit for wind direction 
-        'If Not ucrHourlyWind.CheckQcForDirection() Then
-        '    Return False
-        'End If
-
-
-
+        'Check if all values are valid. There should be atleast one observation value
+        If Not ucrSynopticRA1.ValidateValue() Then
+            MessageBox.Show("Invalid observation data!", "Save Record", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            Return False
+        End If
 
         Return True
     End Function
+
+    ''' <summary>
+    ''' sets key down listeners for the form controls
+    ''' </summary>
+    Private Sub SetControlsKeyDownListners()
+        Dim synopticControl As ucrSynopticRA1
+
+        For Each formCtr As Control In Me.Controls
+            If TypeOf formCtr Is ucrBaseDataLink Then
+                If TypeOf formCtr Is ucrSynopticRA1 Then
+                    'for ucrSynopticRA1 controls
+                    synopticControl = DirectCast(formCtr, ucrSynopticRA1)
+                    For Each synopCtr As Control In synopticControl.Controls
+                        If TypeOf synopCtr Is ucrValueFlagPeriod Then
+                            AddHandler DirectCast(synopCtr, ucrValueFlagPeriod).evtKeyDown, AddressOf GoToNextControl
+                        End If
+                    Next
+                Else
+                    'for the other base controls e.g station, year, month, day, hour slectors
+                    AddHandler DirectCast(formCtr, ucrBaseDataLink).evtKeyDown, AddressOf GoToNextControl
+                End If
+            End If
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' determines the next control to get focus on enter key  
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub GoToNextControl(sender As Object, e As KeyEventArgs)
+        If e.KeyCode = Keys.Enter Then
+            Dim bGoToNextControl As Boolean = False
+
+            'do validations to determine whether to go to next control
+            If TypeOf sender Is ucrValueFlagPeriod Then
+                If DirectCast(sender, ucrValueFlagPeriod).PreValidateValue() Then
+                    bGoToNextControl = True
+                End If
+            ElseIf TypeOf sender Is ucrBaseDataLink Then
+                'for the other base controls e.g station, year, month, day, hour slectors
+                If DirectCast(sender, ucrBaseDataLink).ValidateValue() Then
+                    bGoToNextControl = True
+                End If
+            End If
+
+            If bGoToNextControl Then
+                Me.SelectNextControl(sender, True, True, True, True)
+            End If
+
+            'to handle the "noise"
+            e.SuppressKeyPress = True
+        End If
+    End Sub
+
+    'This is from Samuel's code
+    Private Sub btnHelp_Click(sender As Object, e As EventArgs) Handles btnHelp.Click
+        Help.ShowHelp(Me, Application.StartupPath & "\climsoft4.chm", "keyentryoperations.htm#form_synopticRA1")
+    End Sub
+
+    'TODO. This is from Samuel's code
+    Private Sub btnView_Click(sender As Object, e As EventArgs) Handles btnView.Click
+        Dim viewRecords As New dataEntryGlobalRoutines
+        Dim sql, userName As String
+        userName = frmLogin.txtUsername.Text
+        dsSourceTableName = "form_synoptic_2_RA1"
+        If userGroup = "ClimsoftOperator" Or userGroup = "ClimsoftRainfall" Then
+            sql = "SELECT * FROM form_synoptic_2_RA1 where signature ='" & userName & "' ORDER by stationId,yyyy,mm,dd,hh;"
+        Else
+            sql = "SELECT * FROM form_synoptic_2_RA1 ORDER by stationId,yyyy,mm,dd,hh;"
+        End If
+        viewRecords.viewTableRecords(sql)
+    End Sub
+
+    Private Sub btnUpload_Click(sender As Object, e As EventArgs) Handles btnUpload.Click
+        'TODO
+    End Sub
+
+    'TODO. Copied from Samuel's code
+    Private Sub btnTDCF_Click(sender As Object, e As EventArgs) Handles btnTDCF.Click
+        frmSynopTDCF.Show()
+        frmSynopTDCF.cboTemplate.Text = "TM_307081"
+        ' Subset Observations
+        SubsetObservations()
+    End Sub
+
+    'TODO. Copied from Samuel's code
+    Sub SubsetObservations()
+        Dim kount As Integer
+        Dim myConnectionString As String
+        Dim conn As New MySql.Data.MySqlClient.MySqlConnection
+        Dim sql As String
+        Dim da As MySql.Data.MySqlClient.MySqlDataAdapter
+        Dim ds As New DataSet
+        Try
+            myConnectionString = frmLogin.txtusrpwd.Text
+            conn.ConnectionString = myConnectionString
+            conn.Open()
+
+            ' Get all stations with the same observation time to constitute the subset of stations for encoding
+            sql = "SELECT stationId, yyyy, mm, dd, hh from form_synoptic_2_ra1 where yyyy = '" & ucrYearSelector.GetValue & "' and mm = '" & ucrMonth.GetValue & "' and dd = '" & ucrDay.GetValue & "' and hh = '" & ucrHour.GetValue & "';"
+
+            'MsgBox(sql)
+            da = New MySql.Data.MySqlClient.MySqlDataAdapter(sql, conn)
+            ds.Clear()
+            da.Fill(ds, "form_synoptic_2_ra1")
+            kount = ds.Tables("form_synoptic_2_ra1").Rows.Count
+
+            frmSynopTDCF.cboStation.Text = ucrStationSelector.GetValue
+            frmSynopTDCF.txtYear.Text = ucrYearSelector.GetValue
+            frmSynopTDCF.cboMonth.Text = ucrMonth.GetValue
+            frmSynopTDCF.cboDay.Text = ucrDay.GetValue
+            frmSynopTDCF.cboHour.Text = ucrHour.GetValue
+
+            ' Populate the station combo box with the stations for the subset
+            For i = 0 To kount - 1
+                'MsgBox(ds.Tables("form_synoptic_2_ra1").Rows(i).Item("stationId"))
+                frmSynopTDCF.cboStation.Items.Add(ds.Tables("form_synoptic_2_ra1").Rows(i).Item("stationId"))
+            Next
+
+        Catch ex As Exception
+            MsgBox(ex.Message)
+            conn.Close()
+        End Try
+        conn.Close()
+    End Sub
+
+
 
 End Class

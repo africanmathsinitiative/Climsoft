@@ -9,7 +9,6 @@ Public Class ucrSynopticRA1
     Public bUpdating As Boolean = False
     Public fs2ra1Record As form_synoptic_2_ra1
 
-
     Private lstFields As New List(Of String)
     Private ucrLinkedNavigation As ucrNavigation
     Private ucrLinkedStation As ucrStationSelector
@@ -19,9 +18,9 @@ Public Class ucrSynopticRA1
     Private ucrLinkedHour As ucrHour
 
     'Stores Morning time for recording tmax
-    Private iTmaxHour1 As Integer
+    Private iTmaxMorningHour As Integer
     'Stores Afternoon time for recording tmax
-    Private iTmaxHour2 As Integer
+    Private iTmaxAfternoonHour As Integer
     'Stores Month for starting recording of Gmin
     Private iGminStartMonth As Integer
     'Stores Month for ending recording Gmin
@@ -55,8 +54,7 @@ Public Class ucrSynopticRA1
     End Sub
 
     Public Overrides Sub PopulateControl()
-        Dim ucrVFP As ucrValueFlagPeriod
-        Dim clsCurrentFilter As New TableFilter
+        Dim clsCurrentFilter As TableFilter
 
         If Not bFirstLoad Then
             MyBase.PopulateControl()
@@ -73,10 +71,10 @@ Public Class ucrSynopticRA1
                 'enable or disable textboxes based on year month day
                 ValidateDataEntryPermission()
             End If
+            'set the values for all the value flag period controls
             For Each ctr In Me.Controls
                 If TypeOf ctr Is ucrValueFlagPeriod Then
-                    ucrVFP = DirectCast(ctr, ucrValueFlagPeriod)
-                    ucrVFP.SetValue(New List(Of Object)({GetValue(strValueFieldName & ucrVFP.Tag), GetValue(strFlagFieldName & ucrVFP.Tag)}))
+                    DirectCast(ctr, ucrValueFlagPeriod).SetValue(New List(Of Object)({GetValue(strValueFieldName & ctr.Tag), GetValue(strFlagFieldName & ctr.Tag)}))
                 End If
             Next
 
@@ -85,7 +83,7 @@ Public Class ucrSynopticRA1
 
             'check if Tmin is required and change properties accordingly. 
             'This also applies to 24Hr precipitation And 24Hr sunshine
-            SetTminRequired(IsTminRequired())
+            SetTminAndRelatedElementsRequired(IsTminRequired())
 
             'Check if Gmin is required and change properties accordingly
             SetGminRequired(IsGminRequired())
@@ -93,7 +91,6 @@ Public Class ucrSynopticRA1
             If Not bUpdating Then
                 SetDefaultStandardPressureLevel()
             End If
-
         End If
 
     End Sub
@@ -106,24 +103,9 @@ Public Class ucrSynopticRA1
         End If
     End Sub
 
-    'TODO
-    'THE NEXT FOCUS NEEDS TO BE REDONE DIFFERENTLY
+    'TODO?
     Private Sub GoToNextVFPControl(sender As Object, e As EventArgs)
-        'Dim ctr As Control
-        Dim ctrVFP As ucrValueFlagPeriod
 
-        If TypeOf sender Is ucrValueFlagPeriod Then
-            ctrVFP = DirectCast(sender, ucrValueFlagPeriod)
-            For Each ctr As Control In Me.Controls
-                If TypeOf ctr Is ucrValueFlagPeriod Then
-                    If ctr.Tag = ctrVFP.Tag + 1 Then
-                        If ctr.Enabled Then
-                            ctr.Focus()
-                        End If
-                    End If
-                End If
-            Next
-        End If
     End Sub
 
     Public Overrides Sub AddLinkedControlFilters(ucrLinkedDataControl As ucrBaseDataLink, tblFilter As TableFilter, Optional strFieldName As String = "")
@@ -144,15 +126,10 @@ Public Class ucrSynopticRA1
         ucrLinkedNavigation.UpdateNavigationByKeyControls()
     End Sub
 
-    Public Overrides Sub Clear()
-        For Each ctr In Me.Controls
-            If TypeOf ctr Is ucrValueFlagPeriod Then
-                DirectCast(ctr, ucrValueFlagPeriod).Clear()
-            End If
-        Next
-    End Sub
-
     Public Sub SaveRecord()
+        'This is determined by the current user not set from the form
+        fs2ra1Record.signature = frmLogin.txtUsername.Text
+
         If bUpdating Then
             'clsDataConnection.db.fs2ra1Record.Add(fs2ra1Record)
             clsDataConnection.db.Entry(fs2ra1Record).State = Entity.EntityState.Modified
@@ -170,6 +147,14 @@ Public Class ucrSynopticRA1
         clsDataConnection.db.form_synoptic_2_ra1.Attach(fs2ra1Record)
         clsDataConnection.db.form_synoptic_2_ra1.Remove(fs2ra1Record)
         clsDataConnection.db.SaveChanges()
+    End Sub
+
+    Public Overrides Sub Clear()
+        For Each ctr In Me.Controls
+            If TypeOf ctr Is ucrValueFlagPeriod Then
+                DirectCast(ctr, ucrValueFlagPeriod).Clear()
+            End If
+        Next
     End Sub
 
     Public Sub SetValueValidation()
@@ -204,15 +189,30 @@ Public Class ucrSynopticRA1
 
     ''' <summary>
     ''' checks if all the ucrValueFlagPeriod controls have a value.
-    ''' Returns true if they are all empty and false if otherwise
+    ''' returns true if they are all empty and false if any one of them has an invalid value
     ''' </summary>
     ''' <returns></returns>
     Public Function IsValuesEmpty() As Boolean
-        Dim ucrVFP As ucrValueFlagPeriod
         For Each ctr As Control In Me.Controls
             If TypeOf ctr Is ucrValueFlagPeriod Then
-                ucrVFP = DirectCast(ctr, ucrValueFlagPeriod)
-                If (Not ucrVFP.IsElementValueEmpty()) AndAlso IsNumeric(ucrVFP.GetElementValue) Then
+                If Not DirectCast(ctr, ucrValueFlagPeriod).IsElementValueEmpty() Then
+                    Return False
+                End If
+            End If
+        Next
+        Return True
+    End Function
+
+    ''' <summary>
+    ''' checks if all the controls have a valid values.
+    ''' Returns true if they are all valid and false if any one of them has invalid value
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function ValidateValue() As Boolean
+        For Each ctr As Control In Me.Controls
+            If TypeOf ctr Is ucrValueFlagPeriod Then
+                If Not DirectCast(ctr, ucrValueFlagPeriod).IsValuesValid() Then
+                    ctr.Focus()
                     Return False
                 End If
             End If
@@ -234,18 +234,17 @@ Public Class ucrSynopticRA1
         clsDataDefinition.SetFields(New List(Of String)({"keyName", "keyValue"}))
         dtbl = clsDataDefinition.GetDataTable()
         If dtbl IsNot Nothing AndAlso dtbl.Rows.Count > 0 Then
-
             'Get Geopotential standard pressure level
             row = dtbl.Select("keyName = 'key00'").FirstOrDefault()
             iStandardPressureLevel = If(row IsNot Nothing, Val(row.Item("keyValue")), 0)
 
             'Get morning time for recording tmax 
             row = dtbl.Select("keyName = 'key01'").FirstOrDefault()
-            iTmaxHour1 = If(row IsNot Nothing, Val(row.Item("keyValue")), 0)
+            iTmaxMorningHour = If(row IsNot Nothing, Val(row.Item("keyValue")), 0)
 
             'Get afternoon time for recording tmax 
             row = dtbl.Select("keyName = 'key02'").FirstOrDefault()
-            iTmaxHour2 = If(row IsNot Nothing, Val(row.Item("keyValue")), 0)
+            iTmaxAfternoonHour = If(row IsNot Nothing, Val(row.Item("keyValue")), 0)
 
             'Get the month for starting record of Gmin
             row = dtbl.Select("keyName = 'key03'").FirstOrDefault()
@@ -278,7 +277,7 @@ Public Class ucrSynopticRA1
     ''' whether its required or not
     ''' </summary>
     ''' <param name="bRequired"></param>
-    Private Sub SetTminRequired(bRequired As Boolean)
+    Private Sub SetTminAndRelatedElementsRequired(bRequired As Boolean)
         If bRequired Then
             'Apply required action to Tmin
             ucrVFPTmin.Enabled = True
@@ -336,86 +335,63 @@ Public Class ucrSynopticRA1
     Private Function IsTmaxRequired() As Boolean
         Dim iHour As Integer
         'get the hour value
-        For Each ucrKeyControl As ucrBaseDataLink In dctLinkedControlsFilters.Keys
-            If TypeOf ucrKeyControl Is ucrHour Then
-                iHour = Val(ucrKeyControl.GetValue)
-                Exit For
-            End If
-        Next
-
-        Return (iHour = iTmaxHour1 OrElse iHour = iTmaxHour2)
+        iHour = ucrLinkedHour.GetValue
+        Return (iHour = iTmaxMorningHour OrElse iHour = iTmaxAfternoonHour)
     End Function
 
     Private Function IsTminRequired() As Boolean
         Dim iHour As Integer
         'get the hour value
-        For Each ucrKeyControl As ucrBaseDataLink In dctLinkedControlsFilters.Keys
-            If TypeOf ucrKeyControl Is ucrHour Then
-                iHour = Val(ucrKeyControl.GetValue)
-                Exit For
-            End If
-        Next
-
-        'tmaxHour1 is the tmin
-        Return (iHour = iTmaxHour1)
+        iHour = ucrLinkedHour.GetValue
+        'iTmaxMorningHour is the tmin
+        Return (iHour = iTmaxMorningHour)
     End Function
 
     Private Function IsGminRequired() As Boolean
         Dim iMonth As Integer
         Dim iHour As Integer
         'get the month and the hour value
-        For Each ucrKeyControl As ucrBaseDataLink In dctLinkedControlsFilters.Keys
-            If TypeOf ucrKeyControl Is ucrMonth Then
-                iMonth = Val(ucrKeyControl.GetValue)
-            ElseIf TypeOf ucrKeyControl Is ucrHour Then
-                iHour = Val(ucrKeyControl.GetValue)
-            End If
-        Next
-
+        iMonth = ucrLinkedMonth.GetValue
+        iHour = ucrLinkedHour.GetValue
         Return (iMonth >= iGminStartMonth AndAlso iMonth < iGminEndMonth AndAlso iHour = 6)
     End Function
 
     Public Sub SetDefaultStandardPressureLevel()
-        ucrVFPStandardPressureLevel.SetValue(New List(Of Object)({iStandardPressureLevel.ToString}))
-        'ucrVFPStandardPressureLevel.ucrValue.SetValue(iStandardPressureLevel.ToString)
+        ucrVFPStandardPressureLevel.SetElementValue(iStandardPressureLevel)
     End Sub
 
-    'TODO
-    'THIS IS NOT YET COMPLETED
     Private Sub ucrVFPWetBulbTemp_Leave(sender As Object, e As EventArgs) Handles ucrVFPWetBulbTemp.Leave
         Try
-            'If wetbulb > dewpoint both elements are flagged because either of them could be wrong.
-            'i.e. wetbulb > the correct value or drybulb < correct value.
-            If Val(ucrVFPWetBulbTemp.GetElementValue) > Val(ucrVFPDryBulbTemp.GetElementValue) Then
+            If Val(ucrVFPDryBulbTemp.GetElementValue) < Val(ucrVFPWetBulbTemp.GetElementValue) Then
                 ucrVFPWetBulbTemp.ucrValue.SetBackColor(Color.Cyan)
                 ucrVFPDryBulbTemp.ucrValue.SetBackColor(Color.Cyan)
-                'ucrVFPWetBulbTemp.Focus()
                 ucrVFPWetBulbTemp.ucrValue.GetFocus()
-                MsgBox("Drybulb must be greater or equal to Wetbulb!", MsgBoxStyle.Exclamation)
+                MessageBox.Show("Drybulb must be greater or equal to Wetbulb!", "Wetbulb", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             Else
                 ucrVFPWetBulbTemp.ucrValue.SetBackColor(Color.White)
                 ucrVFPDryBulbTemp.ucrValue.SetBackColor(Color.White)
 
+                Dim dryBulb, wetBulb, dwPoint, ppp, gpm, stationElevation As Decimal
+
                 'Apply element scale factor to drybulb and wetbulb 
                 'before calling function to calculate dewpoint
-                Dim dryBulb = Val(ucrVFPDryBulbTemp.GetElementValue) / 10
-                Dim wetBulb = Val(ucrVFPWetBulbTemp.GetElementValue) / 10
-                Dim dwPoint = calculateDewpoint(dryBulb, wetBulb) * 10
-                ucrVFPDewPointTemp.SetValue(New List(Of Object)({dwPoint.ToString}))
+                dryBulb = Val(ucrVFPDryBulbTemp.GetElementValue) / 10
+                wetBulb = Val(ucrVFPWetBulbTemp.GetElementValue) / 10
+                dwPoint = calculateDewpoint(dryBulb, wetBulb) * 10
 
-                Dim ppp = Val(ucrVFPStationLevelPressure.GetElementValue) / 10
-                Dim gpm = Val(ucrVFPStandardPressureLevel.GetElementValue)
+                ucrVFPDewPointTemp.SetElementValue(dwPoint)
+
+                ppp = Val(ucrVFPStationLevelPressure.GetElementValue) / 10
+                gpm = Val(ucrVFPStandardPressureLevel.GetElementValue)
 
                 'do a datacall to get station elevation
-                Dim stnElevation = GetStationElevation()
+                stationElevation = GetStationElevation()
 
-                If stnElevation <> "" AndAlso Not ucrVFPStationLevelPressure.IsElementValueEmpty AndAlso Not ucrVFPDryBulbTemp.IsElementValueEmpty Then
-                    'Calculate geopotential
-                    Dim geoPotentialHeight = CalculateGeopotential(ppp, dryBulb, Val(stnElevation), gpm)
-                    ucrVFPGeopotentialHeight.SetValue(New List(Of Object)({geoPotentialHeight.ToString}))
-                    'calculate MSL pressure
-                    Dim mslpp = CalculateMSLppp(ppp, dryBulb, Val(stnElevation))
-                    ucrVFPPressureReduced.SetValue(New List(Of Object)({mslpp.ToString}))
+                If stationElevation <> 0 AndAlso Not ucrVFPStationLevelPressure.IsElementValueEmpty AndAlso Not ucrVFPDryBulbTemp.IsElementValueEmpty Then
+                    'Calculate and set geopotential 
+                    ucrVFPGeopotentialHeight.SetElementValue(CalculateGeopotential(ppp, dryBulb, stationElevation, gpm))
+                    'calculate and set MSL pressure 
+                    ucrVFPPressureReduced.SetElementValue(CalculateMSLppp(ppp, dryBulb, stationElevation))
                 End If
             End If
         Catch ex As Exception
@@ -423,8 +399,12 @@ Public Class ucrSynopticRA1
         End Try
     End Sub
 
-    Private Sub UcrVFPWetBulbTemp_LostFocus(sender As Object, e As EventArgs) Handles ucrVFPWetBulbTemp.LostFocus
-
+    Private Sub UcrVFPDewPointTemp_Leave(sender As Object, e As EventArgs) Handles ucrVFPDewPointTemp.Leave
+        Dim dryBulb, dewPoint As Decimal
+        'Apply element scale factor to drybulb and wetbulb before calling the function to calculate relative humidty
+        dryBulb = Val(ucrVFPDryBulbTemp.GetElementValue) / 10
+        dewPoint = Val(ucrVFPDewPointTemp.GetElementValue) / 10
+        ucrVFPRelativeHumidity.SetElementValue(CalculateRelativeHumidity(dewPoint, dryBulb))
     End Sub
 
     Public Function calculateDewpoint(ByVal dryBulb As Decimal, ByVal wetBulb As Decimal) As Decimal
@@ -433,13 +413,7 @@ Public Class ucrSynopticRA1
         'E is saturation vapour pressure(s.v.p.), 
         'hence Ed Is s.v.p.over drybulb And Ew s.v.p. over wetbulb, 
         'Ea actual s.v.p.
-        Dim Td_Fahrenheit As Decimal
-        Dim Ed As Decimal
-        Dim Tw_Fahrenheit As Decimal
-        Dim Ew As Decimal
-        Dim Ea As Decimal
-        Dim Tp_Fahrenheit As Decimal
-        Dim Tp_Celcius As Decimal
+        Dim Td_Fahrenheit, Ed, Tw_Fahrenheit, Ew, Ea, Tp_Fahrenheit, Tp_Celcius As Decimal
 
         Td_Fahrenheit = ((9 / 5) * dryBulb) + 32
         '2.71828183 is natural number (e)
@@ -454,90 +428,52 @@ Public Class ucrSynopticRA1
         Return Tp_Celcius
     End Function
 
-    Private Function GetStationElevation() As String
-        Dim elevation As String = ""
+    ''' <summary>
+    ''' gets the elevation value of the currently selected station
+    ''' </summary>
+    ''' <returns></returns>
+    Private Function GetStationElevation() As Double
+        Dim elevation As Double
         Dim clsDataDefinition As DataCall
         Dim dtbl As DataTable
+        Dim stationId As String
 
-        Dim stationValue As String = ""
-        'get the station value
-        For Each ucrKeyControl As ucrBaseDataLink In dctLinkedControlsFilters.Keys
-            If TypeOf ucrKeyControl Is ucrStationSelector Then
-                stationValue = ucrKeyControl.GetValue
-                Exit For
-            End If
-        Next
+        'get the the current selected station id
+        stationId = ucrLinkedStation.GetValue()
 
         clsDataDefinition = New DataCall
         clsDataDefinition.SetTableName("stations")
         clsDataDefinition.SetFields(New List(Of String)({"stationId", "elevation"}))
-        clsDataDefinition.SetFilter("stationId", "=", stationValue, bIsPositiveCondition:=True, bForceValuesAsString:=True)
+        clsDataDefinition.SetFilter("stationId", "=", stationId, bIsPositiveCondition:=True, bForceValuesAsString:=True)
         dtbl = clsDataDefinition.GetDataTable()
         If dtbl IsNot Nothing AndAlso dtbl.Rows.Count > 0 Then
-            elevation = dtbl.Rows(0).Item("elevation")
+            elevation = Val(dtbl.Rows(0).Item("elevation"))
         End If
         Return elevation
     End Function
 
-    'TODO
-    'SAMUEL IS USING VariantType WHICH TRUNCATES VALUES AND PRECISION
-    'IS LOST. WHEN DECIMALS ARE USED THE CALCULATION RESULTS CHANGES
-    'ANY SUGGESTION ON THE WAY FORWARD
+    'TODO. SAMUEL IS USING VariantType WHICH TRUNCATES VALUES AND PRECISION IS LOST. WHEN DECIMALS ARE USED THE CALCULATION RESULTS CHANGES
     Private Function CalculateGeopotential(ppp As Decimal, dryBulb As Decimal, elevation As Decimal, gpmStdLevel As Decimal) As Decimal
-        Dim geoPotential As Decimal
-        Dim g As VariantType, R As VariantType, gamma As VariantType, K As VariantType
-        'Dim g As Decimal
-        'Dim R As Decimal
-        'Dim gamma As Decimal
-        'Dim K As Decimal
-
-        '0.0065 is dry adiabatic lapse rate
-        '9.80665 is acceleration due to gravity
-        '287.04 is universal gas constant
-        '273.15 is zero Kelvin
-        gamma = 0.0065
-        g = 9.80665
-        R = 287.04
-        K = dryBulb + 273.15
-        geoPotential = Math.Round((elevation + (R / g) * Math.Log(ppp / gpmStdLevel) * (K + ((gamma / 2) * elevation))) / (1 + (R / g) * Math.Log(ppp / gpmStdLevel) * (gamma / 2)))
-
-        Return geoPotential
+        Dim gravity, gasConstant, gamma, K As Decimal
+        gamma = 0.0065  '0.0065 is dry adiabatic lapse rate
+        gravity = 9.80665  '9.80665 is acceleration due to gravity
+        gasConstant = 287.04 '287.04 is universal gas constant
+        K = dryBulb + 273.15  '273.15 is zero Kelvin 
+        Return Math.Round((elevation + (gasConstant / gravity) * Math.Log(ppp / gpmStdLevel) * (K + ((gamma / 2) * elevation))) / (1 + (gasConstant / gravity) * Math.Log(ppp / gpmStdLevel) * (gamma / 2)))
     End Function
 
     Private Function CalculateMSLppp(ppp As Decimal, dryBulb As Decimal, elevation As Decimal) As Decimal
-        Dim MSLppp As Decimal
-
-        MSLppp = (ppp * (1 - 0.0065 * elevation / (dryBulb + 0.0065 * elevation + 273.15)) ^ -5.257) * 10
-        '0.0065 is dry adiabatic lapse rate
-        MSLppp = Math.Round(MSLppp)
-        Return MSLppp
+        '0.0065 is dry adiabatic lapse rate 
+        Return Math.Round((ppp * (1 - 0.0065 * elevation / (dryBulb + 0.0065 * elevation + 273.15)) ^ -5.257) * 10)
     End Function
 
-    Private Sub UcrVFPDewPointTemp_LostFocus(sender As Object, e As EventArgs) Handles ucrVFPDewPointTemp.LostFocus
-        Dim dryBulb As Decimal
-        Dim dewPoint As Decimal
-        Dim rh As Decimal
-
-        dryBulb = Val(ucrVFPDryBulbTemp.GetElementValue) / 10
-        dewPoint = Val(ucrVFPDewPointTemp.GetElementValue) / 10
-        'TODO SAMUEL IS USING THE DEWPOINT AND THE DRYBULB VALUES TO CALCULATE
-        'THE RELATIVE HUMIDITY. I'M NOT SURE IF THOSE ARE THE CORRECT VALUES
-        'FOR CALCULATING THAT. JUST DUPLICATED HIS
-        rh = CalculateRH(dewPoint, dryBulb)
-        ucrVFPRelativeHumidity.SetValue(New List(Of Object)({rh.ToString}))
-    End Sub
-
-    Private Function CalculateRH(ByVal dewPoint As Decimal, ByVal dryBulb As Decimal) As Decimal
-        Dim RH As Decimal
-        Dim svp1 As Decimal
-        Dim svp2 As Decimal
-        'svp => saturation vapour pressure
-        'RH= svp(dewpoint)/svp(drybulb)
-
+    Private Function CalculateRelativeHumidity(ByVal dewPoint As Decimal, ByVal dryBulb As Decimal) As Decimal
+        'svp means saturation vapour pressure
+        Dim svp1, svp2 As Decimal
+        'Relative Humidity = svp(dewpoint)/svp(drybulb)
         svp1 = 6.11 * 10 ^ (7.5 * dewPoint / (237.3 + dewPoint))
         svp2 = 6.11 * 10 ^ (7.5 * dryBulb / (237.3 + dryBulb))
-        RH = Math.Round((svp1 / svp2) * 100, 0)
-        Return RH
+        Return Math.Round((svp1 / svp2) * 100, 0)
     End Function
 
     ''' <summary>
@@ -550,7 +486,6 @@ Public Class ucrSynopticRA1
     ''' <param name="ucrHourControl"></param>
     ''' <param name="ucrNavigationControl"></param>
     Public Sub SetKeyControls(ucrStationControl As ucrStationSelector, ucrYearControl As ucrYearSelector, ucrMonthControl As ucrMonth, ucrDayControl As ucrDay, ucrHourControl As ucrHour, ucrNavigationControl As ucrNavigation)
-
         ucrLinkedStation = ucrStationControl
         ucrLinkedYear = ucrYearControl
         ucrLinkedMonth = ucrMonthControl
@@ -570,7 +505,6 @@ Public Class ucrSynopticRA1
         ucrLinkedNavigation.SetKeyControls("mm", ucrLinkedMonth)
         ucrLinkedNavigation.SetKeyControls("dd", ucrLinkedDay)
         ucrLinkedNavigation.SetKeyControls("hh", ucrLinkedHour)
-
     End Sub
 
     ''' <summary>
@@ -578,25 +512,26 @@ Public Class ucrSynopticRA1
     ''' this prevents data entry of current and future dates
     ''' </summary>
     Private Sub ValidateDataEntryPermission()
-        'if its an update or any of the linked year,month and day selector is nothing then just exit the sub
+        'if its an update or any of the linked year,month and day selector is nothing then just enable the control
         If bUpdating OrElse ucrLinkedYear Is Nothing OrElse ucrLinkedMonth Is Nothing OrElse ucrLinkedDay Is Nothing Then
-            Exit Sub
-        End If
-
-        Dim todayDate As Date
-        Dim selectedDate As Date
-
-        'initialise the dates with ONLY year month and day values. 
-        'Neglect the time factor
-        todayDate = New Date(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
-        selectedDate = New Date(ucrLinkedYear.GetValue, ucrLinkedMonth.GetValue, ucrLinkedDay.GetValue)
-
-        'if selectedDate is earlier than todayDate enable control
-        If DateTime.Compare(selectedDate, todayDate) < 0 Then
             Me.Enabled = True
+        ElseIf ucrLinkedYear.ValidateValue AndAlso ucrLinkedMonth.ValidateValue AndAlso ucrLinkedDay.ValidateValue Then
+            Dim todayDate As Date = Date.Now
+            Dim selectedDate As Date
+            'initialise the dates with ONLY year month and day values. Neglect the time factor
+            todayDate = New Date(todayDate.Year, todayDate.Month, todayDate.Day)
+            selectedDate = New Date(ucrLinkedYear.GetValue, ucrLinkedMonth.GetValue, ucrLinkedDay.GetValue)
+
+            'if selectedDate is earlier than todayDate enable control
+            If Date.Compare(selectedDate, todayDate) < 0 Then
+                Me.Enabled = True
+            Else
+                'if it is same time (0) or later than (>0) disable control
+                Me.Enabled = False
+            End If
         Else
-            'if it is same time (0) or later than (>0) disable control
             Me.Enabled = False
         End If
     End Sub
+
 End Class
