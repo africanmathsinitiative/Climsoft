@@ -31,6 +31,5 @@ Partial Public Class observationinitial
     Public Property dataSourceTimeZone As Nullable(Of Integer)
 
     Public Overridable Property obselement As obselement
-    Public Overridable Property station As station
 
 End Class

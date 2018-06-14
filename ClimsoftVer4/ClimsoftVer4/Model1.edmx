@@ -1294,18 +1294,6 @@ warning 6013: The table/view 'def.mariadb_climsoft_test_db_v4.stationqualifier' 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_maria_climsoft_db_v4_station_observationInitial">
-          <End Role="station" Type="Self.station" Multiplicity="1" />
-          <End Role="observationinitial" Type="Self.observationinitial" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="station">
-              <PropertyRef Name="stationId" />
-            </Principal>
-            <Dependent Role="observationinitial">
-              <PropertyRef Name="recordedFrom" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <!--Errors Found During Generation:
 error 6004: The table 'def.mariadb_climsoft_test_db_v4.paperarchive' is referenced by a relationship, but cannot be found.
         <Association Name="FK_mysql_climsoft_db_v4_0_station_paperArchive" />-->
@@ -1629,10 +1617,6 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
           </EntitySet>
           <AssociationSet Name="FK_maria_climsoft_db_v4_obselement_observationInitial" Association="Self.FK_maria_climsoft_db_v4_obselement_observationInitial">
             <End Role="obselement" EntitySet="obselement" />
-            <End Role="observationinitial" EntitySet="observationinitial" />
-          </AssociationSet>
-          <AssociationSet Name="FK_maria_climsoft_db_v4_station_observationInitial" Association="Self.FK_maria_climsoft_db_v4_station_observationInitial">
-            <End Role="station" EntitySet="station" />
             <End Role="observationinitial" EntitySet="observationinitial" />
           </AssociationSet>
           <AssociationSet Name="FK_mysql_climsoft_db_v4_instrument" Association="Self.FK_mysql_climsoft_db_v4_instrument">
@@ -2581,7 +2565,6 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
           <NavigationProperty Name="instrumentfaultreports" Relationship="Self.FK_mysql_climsoft_db_v4_station_instrumentFaultReport" FromRole="station" ToRole="instrumentfaultreport" />
           <NavigationProperty Name="obsscheduleclasses" Relationship="Self.FK_mysql_climsoft_db_v4_station_scheduleClass" FromRole="station" ToRole="obsscheduleclass" />
           <NavigationProperty Name="physicalfeatureclasses" Relationship="Self.FK_mysql_climsoft_db_v4_station_featureClass" FromRole="station" ToRole="physicalfeatureclass" />
-          <NavigationProperty Name="observationinitial" Relationship="Self.FK_maria_climsoft_db_v4_station_observationInitial" FromRole="station" ToRole="observationinitial" />
           <NavigationProperty Name="observationfinal" Relationship="Self.FK_mysql_climsoft_db_v4_station_observationFinal" FromRole="station" ToRole="observationfinal" />
           <NavigationProperty Name="physicalfeature" Relationship="Self.FK_mysql_climsoft_db_v4_stationFeature" FromRole="station" ToRole="physicalfeature" />
         </EntityType>
@@ -2737,7 +2720,6 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
           <Property Name="visUnits" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="dataSourceTimeZone" Type="Int32" />
           <NavigationProperty Name="obselement" Relationship="Self.FK_maria_climsoft_db_v4_obselement_observationInitial" FromRole="observationinitial" ToRole="obselement" />
-          <NavigationProperty Name="station" Relationship="Self.FK_maria_climsoft_db_v4_station_observationInitial" FromRole="observationinitial" ToRole="station" />
         </EntityType>
         <EntityType Name="physicalfeature">
           <Key>
@@ -2868,18 +2850,6 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_maria_climsoft_db_v4_station_observationInitial">
-          <End Role="station" Type="Self.station" Multiplicity="1" />
-          <End Role="observationinitial" Type="Self.observationinitial" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="station">
-              <PropertyRef Name="stationId" />
-            </Principal>
-            <Dependent Role="observationinitial">
-              <PropertyRef Name="recordedFrom" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_mysql_climsoft_db_v4_station_observationFinal">
           <End Role="station" Type="Self.station" Multiplicity="1" />
           <End Role="observationfinal" Type="Self.observationfinal" Multiplicity="0..1" />
@@ -2991,10 +2961,6 @@ FROM `seq_month_day_element_leap_yr` AS `seq_month_day_element_leap_yr`</Definin
           <AssociationSet Name="physicalFeatureidentification" Association="Self.physicalFeatureidentification">
             <End Role="physicalfeatureclass" EntitySet="physicalfeatureclasses" />
             <End Role="physicalfeature" EntitySet="physicalfeatures" />
-          </AssociationSet>
-          <AssociationSet Name="FK_maria_climsoft_db_v4_station_observationInitial" Association="Self.FK_maria_climsoft_db_v4_station_observationInitial">
-            <End Role="station" EntitySet="stations" />
-            <End Role="observationinitial" EntitySet="observationinitials" />
           </AssociationSet>
           <AssociationSet Name="FK_mysql_climsoft_db_v4_station_observationFinal" Association="Self.FK_mysql_climsoft_db_v4_station_observationFinal">
             <End Role="station" EntitySet="stations" />
