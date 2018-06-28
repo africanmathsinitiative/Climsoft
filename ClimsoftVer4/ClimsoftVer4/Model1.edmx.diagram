@@ -68,7 +68,6 @@
         <AssociationConnector Association="mariadb_climsoft_test_db_v4Model.FK_mysql_climsoft_db_v4_station_scheduleClass" ManuallyRouted="false" />
         <AssociationConnector Association="mariadb_climsoft_test_db_v4Model.FK_mysql_climsoft_db_v4_station_featureClass" ManuallyRouted="false" />
         <AssociationConnector Association="mariadb_climsoft_test_db_v4Model.physicalFeatureidentification" ManuallyRouted="false" />
-        <AssociationConnector Association="mariadb_climsoft_test_db_v4Model.FK_maria_climsoft_db_v4_station_observationInitial" ManuallyRouted="false" />
         <AssociationConnector Association="mariadb_climsoft_test_db_v4Model.FK_mysql_climsoft_db_v4_station_observationFinal" ManuallyRouted="false" />
         <AssociationConnector Association="mariadb_climsoft_test_db_v4Model.FK_mysql_climsoft_db_v4_stationFeature" ManuallyRouted="false" />
       </Diagram>

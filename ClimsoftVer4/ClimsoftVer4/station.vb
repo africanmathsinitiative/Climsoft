@@ -32,7 +32,6 @@ Partial Public Class station
     Public Overridable Property instrumentfaultreports As ICollection(Of instrumentfaultreport) = New HashSet(Of instrumentfaultreport)
     Public Overridable Property obsscheduleclasses As ICollection(Of obsscheduleclass) = New HashSet(Of obsscheduleclass)
     Public Overridable Property physicalfeatureclasses As ICollection(Of physicalfeatureclass) = New HashSet(Of physicalfeatureclass)
-    Public Overridable Property observationinitial As observationinitial
     Public Overridable Property observationfinal As observationfinal
     Public Overridable Property physicalfeature As physicalfeature
 
